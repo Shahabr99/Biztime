@@ -11,7 +11,7 @@ const companiesRoutes = require('./routes/companies')
 app.use(express.json());
 
 //use the routes in companies.js
-app.use('/comapnies', companiesRoutes)
+app.use('/companies', companiesRoutes)
 
 
 

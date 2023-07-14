@@ -18,7 +18,43 @@ router.get('/:code', async function(req, res, next) {
   try{
     const {code} = req.params
     const results = await db.query("SELECT * FROM companies WHERE code=$1", [code])
-    return res.json(results.rows[0])
+    if(!results) return new ExpressError("Data not found", 404)
+    return res.json({company: results.rows[0]})
+  }catch(e) {
+    return next(e)
+  }
+})
+
+
+router.post('/', async function(req, res,next) {
+  try {
+    const {code, name, description} = req.body;
+    const results = await db.query(`INSERT INTO companies(code, name, description) VALUES ($1,$2,$3) RETURNING code, name, description`, [code, name, description]);
+    return res.status(201).json({company: results.rows})
+  }catch(e){
+    return next(e)
+  }
+})
+
+
+router.put("/:code", async function(req, res, next) {
+  try {
+    const {name, description} = req.body;
+    const {code} = req.params;
+
+    const result = await db.query(`UPDATE companies SET name=$1, description=$2 WHERE code=$3 RETURNING name, description`, [name, description, code])
+    if(!result) return new ExpressError("Data not found", 404)
+    return res.json({company: result.rows})
+  }catch(e) {
+    return next(e)
+  }
+})
+
+router.delete('/:code', async function(req, res, next) {
+  try {
+    const {code} = req.params;
+    const results = await db.query(`DELETE FROM companies WHERE code=$1`, [code]);
+    return res.json({status: "Deleted"})
   }catch(e) {
     return next(e)
   }
