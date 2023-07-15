@@ -18,7 +18,7 @@ router.get('/:code', async function(req, res, next) {
   try{
     const {code} = req.params
     const results = await db.query("SELECT * FROM companies WHERE code=$1", [code])
-    if(!results) return new ExpressError("Data not found", 404)
+    if(results.rows.length === 0) return new ExpressError("Data not found", 404)
     return res.json({company: results.rows[0]})
   }catch(e) {
     return next(e)
@@ -26,7 +26,7 @@ router.get('/:code', async function(req, res, next) {
 })
 
 
-router.post('/', async function(req, res,next) {
+router.post('/', async function(req, res, next) {
   try {
     const {code, name, description} = req.body;
     const results = await db.query(`INSERT INTO companies(code, name, description) VALUES ($1,$2,$3) RETURNING code, name, description`, [code, name, description]);
@@ -43,7 +43,7 @@ router.put("/:code", async function(req, res, next) {
     const {code} = req.params;
 
     const result = await db.query(`UPDATE companies SET name=$1, description=$2 WHERE code=$3 RETURNING name, description`, [name, description, code])
-    if(!result) return new ExpressError("Data not found", 404)
+    if(result.rows.length === 0) return new ExpressError("Data not found", 404)
     return res.json({company: result.rows})
   }catch(e) {
     return next(e)
@@ -59,6 +59,7 @@ router.delete('/:code', async function(req, res, next) {
     return next(e)
   }
 })
+
 
 
 module.exports = router;
