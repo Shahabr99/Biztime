@@ -1,7 +1,7 @@
 process.env.NODE_ENV = 'test';
 const request = require('supertest');
-const db = require('./db')
-const app = require('./app')
+const db = require('../db')
+const app = require('../app')
 
 let testCompany;
 beforeEach(async function() {
