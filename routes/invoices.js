@@ -36,7 +36,7 @@ router.post('/invoices', async function(req, res, next) {
   try{
     const {comp_code, amt} = req.body;
     const results = await db.query(`INSERT INTO invoices(comp_code, amt)VALUES($1, $2) RETURNING id, comp_code, amt, paid, add_date, paid_date`, [comp_code, amt])
-    return res.json({invoice: results.rows[0]})
+    return res.status(201).json({invoice: results.rows[0]})
   }catch(e){
     return next(e)
   }
@@ -47,7 +47,7 @@ router.put('/invoices/:id', async(req, res, next) => {
   try {
     const {amt} = req.body;
     const {id} = req.params;
-    const results = await db.query(`UPDATE invoices SET amt=$1 WHERE invoices.id=$2 RETURNING id, comp_code, amt, paid, add_date, paid_date}`, [amt, id])
+    const results = await db.query(`UPDATE invoices SET amt=$1 WHERE invoices.id=$2 RETURNING id, comp_code, amt, paid, add_date, paid_date`, [amt, id])
     if(results.rows.length == 0) throw new ExpressError("Data cannot be found", 404)
     return res.json(results.rows[0])
   }catch(e){

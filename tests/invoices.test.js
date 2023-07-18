@@ -5,8 +5,9 @@ const db = require('../db');
 
 let invoiceTest;
 beforeEach(async function() {
-  await db.query("INSERT INTO companies(code, name, description) VALUES ('ATT', 'ATT', 'Cellualer Services') RETURNING code, name, description")
-  let testInvoice = await db.query("INSERT INTO invoices(id, amt,comp_code, paid_date) VALUES (1, 2.4, 'ATT', \'2022-01-01\') RETURNING amt, paid_date");
+  await db.query("INSERT INTO companies(code, name, description) VALUES ('Verizon','Verizon','Cellular Service') RETURNING code, name, description")
+  await db.query("INSERT INTO companies(code, name, description) VALUES ('ATT', 'ATT', 'Cellular Service') RETURNING code, name, description")
+  let testInvoice = await db.query("INSERT INTO invoices(id, amt,comp_code, paid_date) VALUES (1, 2.4, 'Verizon', \'2022-01-01\') RETURNING amt, comp_code, paid_date");
   invoiceTest = testInvoice.rows[0];
 }) 
   
@@ -41,8 +42,27 @@ describe('GET /invoices/:id', function() {
 
 describe("POST /invoices", function() {
   test("should add a new invocie", async function() {
-    const response = await request(app).post('/invoices').send({"comp_code":"Verzion", "amt": 4.5});
+    
+    const response = await request(app).post('/invoices').send({"comp_code":"Verizon", "amt": 4.5});
     expect(response.statusCode).toEqual(201);
     expect(response.body).toEqual({invoice: expect.any(Object)})
+  })
+})
+
+
+describe('PUT /invoices/:id', function(){
+  test('Should update an invoice', async function() {
+    const resp = await request(app).put('/invoices/1').send({"amt": 3.5})
+    expect(resp.statusCode).toEqual(200);
+    expect(resp.body).toEqual(expect.any(Object))
+  })
+})
+
+
+describe('DELETE /invoices/:id', function() {
+  test("it should delete a specific invoice", async function() {
+    const resp = await request(app).delete('/invoices/1')
+    expect(resp.statusCode).toEqual(200);
+    expect(resp.body).toEqual({status: "Deleted"});
   })
 })
