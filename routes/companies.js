@@ -17,7 +17,7 @@ router.get('/', async function(req, res, next) {
 router.get('/:code', async function(req, res, next) {
   try{
     const {code} = req.params
-    const results = await db.query("SELECT * FROM companies WHERE code=$1", [code])
+    const results = await db.query("SELECT c.code, c.name, c.description, i.industry FROM companies AS c LEFT JOIN industriesCompanies AS ic ON c.code = ic.comp_code LEFT JOIN industries AS i ON ic.industry_code = i.code WHERE c.code=$1", [code])
     if(results.rows.length === 0) return new ExpressError("Data not found", 404)
     return res.json({company: results.rows[0]})
   }catch(e) {
@@ -53,7 +53,7 @@ router.put("/:code", async function(req, res, next) {
 router.delete('/:code', async function(req, res, next) {
   try {
     const {code} = req.params;
-    const results = await db.query(`DELETE FROM companies WHERE code=$1`, [code]);
+    await db.query(`DELETE FROM companies WHERE code=$1`, [code]);
     return res.json({status: "Deleted"})
   }catch(e) {
     return next(e)
